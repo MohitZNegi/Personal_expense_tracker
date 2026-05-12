@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
+from flask_login import current_user
 from config import config
 from app.extensions import db, login_manager
 
@@ -22,6 +23,12 @@ def create_app(config_name: str = "default") -> Flask:
     app.register_blueprint(auth_bp,       url_prefix="/auth")
     app.register_blueprint(expenses_bp,   url_prefix="/expenses")
     app.register_blueprint(categories_bp, url_prefix="/categories")
+
+    @app.get("/")
+    def root():
+        if current_user.is_authenticated:
+            return redirect(url_for("expenses.index"))
+        return redirect(url_for("auth.login"))
 
     # Create all DB tables if they don't exist
     with app.app_context():
