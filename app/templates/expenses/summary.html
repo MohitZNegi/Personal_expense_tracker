@@ -1,0 +1,130 @@
+{% extends "base.html" %} {% block title %}Monthly Summary{% endblock %} {%
+block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-header__title">Monthly Summary</h1>
+    <p class="page-header__sub">
+      <!--
+        We pass year and month from the route as integers.
+        We reconstruct a date object in Jinja2 to format it nicely.
+        "%B %Y" → "May 2025"
+      -->
+      {{ "%s %s"|format(["January","February","March","April","May","June",
+      "July","August","September","October","November","December"][month-1],
+      year) }}
+    </p>
+  </div>
+
+  <!-- Month navigation form — GET request with query params -->
+  <form
+    method="GET"
+    action="{{ url_for('expenses.summary') }}"
+    class="month-nav"
+  >
+    <input
+      type="number"
+      name="year"
+      value="{{ year }}"
+      min="2020"
+      max="2099"
+      class="form__input month-nav__input"
+    />
+    <select name="month" class="form__input form__select month-nav__select">
+      {% for m in range(1, 13) %}
+      <option value="{{ m }}" {% if m == month %}selected{% endif %}>
+        {{ ["January","February","March","April","May","June",
+        "July","August","September","October","November","December"][m-1] }}
+      </option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn--outline">Go</button>
+  </form>
+</div>
+
+<!-- Total spend card -->
+<div class="summary-hero">
+  <p class="summary-hero__label">Total spent this month</p>
+  <p class="summary-hero__amount">${{ "%.2f"|format(monthly_total) }}</p>
+</div>
+
+<!-- Breakdown by category -->
+{% if by_category %}
+
+<h2 class="section-title">Breakdown by category</h2>
+
+<!--
+    by_category comes from Expense.get_by_category() which returns a list
+    of (name, colour, total) named tuples from a GROUP BY query.
+    We iterate over them and render a bar for each.
+  -->
+{% set max_total = by_category|map(attribute='total')|max %}
+
+<div class="category-bars">
+  {% for row in by_category|sort(attribute='total', reverse=True) %} {% set
+  bar_pct = ((row.total / max_total) * 100)|round|int %}
+
+  <div class="category-bar">
+    <div class="category-bar__label">
+      <span class="colour-dot" style="background: {{ row.colour }};"></span>
+      <span>{{ row.name }}</span>
+    </div>
+    <div class="category-bar__track">
+      <div
+        class="category-bar__fill"
+        style="width: {{ bar_pct }}%; background: {{ row.colour }};"
+      ></div>
+    </div>
+    <div class="category-bar__amount">${{ "%.2f"|format(row.total) }}</div>
+  </div>
+
+  {% endfor %}
+</div>
+
+<!-- Also show as a simple table for accessibility -->
+<div class="table-wrap" style="margin-top: 2rem">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th class="table__cell--right">Total</th>
+        <th class="table__cell--right">% of spend</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in by_category|sort(attribute='total', reverse=True) %}
+      <tr>
+        <td>
+          <span
+            class="badge"
+            style="background: {{ row.colour }}22;
+                         color: {{ row.colour }};
+                         border-color: {{ row.colour }}44;"
+          >
+            {{ row.name }}
+          </span>
+        </td>
+        <td class="table__cell--right table__cell--amount">
+          ${{ "%.2f"|format(row.total) }}
+        </td>
+        <td class="table__cell--right table__cell--muted">
+          {% if monthly_total > 0 %} {{ ((row.total|float / monthly_total) *
+          100)|round(1) }}% {% else %} — {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% else %}
+
+<div class="empty-state">
+  <p class="empty-state__icon">📅</p>
+  <p class="empty-state__message">No expenses recorded for this month.</p>
+  <a href="{{ url_for('expenses.add') }}" class="btn btn--primary"
+    >Add an expense</a
+  >
+</div>
+
+{% endif %} {% endblock %}

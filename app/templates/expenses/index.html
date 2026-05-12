@@ -1,0 +1,132 @@
+{% extends "base.html" %} {% block title %}My Expenses{% endblock %} {% block
+content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-header__title">My Expenses</h1>
+    <p class="page-header__sub">
+      {{ expenses|length }} record{{ 's' if expenses|length != 1 }}
+    </p>
+  </div>
+  <a href="{{ url_for('expenses.add') }}" class="btn btn--primary"
+    >+ Add expense</a
+  >
+</div>
+
+{% if expenses %}
+
+<!--
+    A <table> is the right HTML element here because this is genuinely
+    tabular data — rows share the same columns (date, description, etc.).
+    Avoid using tables for layout, but embrace them for data.
+  -->
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Category</th>
+        <th class="table__cell--right">Amount</th>
+        <th class="table__cell--center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for expense in expenses %}
+      <tr>
+        <td class="table__cell--muted">
+          {{ expense.date.strftime("%d %b %Y") }}
+        </td>
+
+        <td>
+          {{ expense.description }} {% if expense.notes %}
+          <!--
+                title= gives a native browser tooltip on hover.
+                No JavaScript needed for a simple notes preview.
+              -->
+          <span class="note-hint" title="{{ expense.notes }}">📝</span>
+          {% endif %}
+        </td>
+
+        <td>
+          {% if expense.category %}
+          <!--
+                The category colour is stored as a hex string (e.g. "#6366f1").
+                We use it inline to tint the badge background at 15% opacity
+                and set the text to the same colour for contrast.
+              -->
+          <a
+            href="{{ url_for('categories.detail', category_id=expense.category.id) }}"
+            class="badge"
+            style="background: {{ expense.category.colour }}22;
+                        color: {{ expense.category.colour }};
+                        border-color: {{ expense.category.colour }}44;"
+          >
+            {{ expense.category.name }}
+          </a>
+          {% else %}
+          <span class="badge badge--gray">Uncategorised</span>
+          {% endif %}
+        </td>
+
+        <td class="table__cell--right table__cell--amount">
+          ${{ "%.2f"|format(expense.amount) }}
+        </td>
+
+        <td class="table__cell--center">
+          <div class="action-group">
+            <a
+              href="{{ url_for('expenses.edit', expense_id=expense.id) }}"
+              class="btn btn--sm btn--outline"
+              >Edit</a
+            >
+
+            <!--
+                Delete uses a POST form, not a GET link. A GET link can be
+                triggered by a browser prefetch or a crawler and would silently
+                delete data. POST requires an intentional form submission.
+              -->
+            <form
+              method="POST"
+              action="{{ url_for('expenses.delete', expense_id=expense.id) }}"
+              onsubmit="return confirm('Delete this expense?');"
+              style="display: inline"
+            >
+              <button type="submit" class="btn btn--sm btn--danger">
+                Delete
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+    <!--
+        tfoot shows the running total at the bottom.
+        "%.2f"|format() is a Jinja2 filter that calls Python's % string
+        formatting — equivalent to f"{value:.2f}" in Python.
+      -->
+    <tfoot>
+      <tr>
+        <td colspan="3" class="table__cell--muted">Total</td>
+        <td class="table__cell--right table__cell--amount table__cell--total">
+          ${{ "%.2f"|format(expenses|sum(attribute='amount')) }}
+        </td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+{% else %}
+
+<div class="empty-state">
+  <p class="empty-state__icon">📊</p>
+  <p class="empty-state__message">No expenses yet.</p>
+  <a href="{{ url_for('expenses.add') }}" class="btn btn--primary"
+    >Add your first expense</a
+  >
+</div>
+
+{% endif %} {% endblock %}

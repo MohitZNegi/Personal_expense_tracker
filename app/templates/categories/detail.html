@@ -34,7 +34,7 @@ endblock %} {% block content %}
 >
   <p class="summary-hero__label">Total in {{ category.name }}</p>
   <p class="summary-hero__amount" style="color: {{ category.colour }};">
-    £{{ "%.2f"|format(total) }}
+    ${{ "%.2f"|format(total) }}
   </p>
 </div>
 
@@ -60,7 +60,7 @@ endblock %} {% block content %}
         <td>{{ expense.description }}</td>
         <td class="table__cell--muted">{{ expense.notes or '—' }}</td>
         <td class="table__cell--right table__cell--amount">
-          £{{ "%.2f"|format(expense.amount) }}
+          ${{ "%.2f"|format(expense.amount) }}
         </td>
         <td class="table__cell--center">
           <div class="action-group">
@@ -87,7 +87,7 @@ endblock %} {% block content %}
       <tr>
         <td colspan="3" class="table__cell--muted">Total</td>
         <td class="table__cell--right table__cell--amount table__cell--total">
-          £{{ "%.2f"|format(total) }}
+          ${{ "%.2f"|format(total) }}
         </td>
         <td></td>
       </tr>

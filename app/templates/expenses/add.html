@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Add Expense{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-header__title">Add expense</h1>
+    <p class="page-header__sub">Fill in the details below.</p>
+  </div>
+  <a href="{{ url_for('expenses.index') }}" class="btn btn--outline">Back</a>
+</div>
+
+<div class="form-card">
+  <form method="POST" action="" novalidate class="form">
+
+    <div class="form__row">
+
+      <div class="form__group form__group--grow">
+        <label class="form__label" for="description">Description <span class="form__required">*</span></label>
+        <input
+          class="form__input"
+          type="text"
+          id="description"
+          name="description"
+          placeholder="e.g. Weekly groceries"
+          required
+          value="{{ request.form.get('description', '') }}"
+        />
+      </div>
+
+      <div class="form__group form__group--fixed">
+        <label class="form__label" for="amount">Amount ($) <span class="form__required">*</span></label>
+        <input
+          class="form__input"
+          type="number"
+          id="amount"
+          name="amount"
+          placeholder="0.00"
+          step="0.01"
+          min="0.01"
+          required
+          value="{{ request.form.get('amount', '') }}"
+        />
+      </div>
+
+    </div>
+
+    <div class="form__row">
+
+      <div class="form__group">
+        <label class="form__label" for="date">Date <span class="form__required">*</span></label>
+        <!--
+          We pre-fill with today using JS below.
+          If the form was submitted and failed, request.form.get('date') restores the user's choice.
+        -->
+        <input
+          class="form__input"
+          type="date"
+          id="date"
+          name="date"
+          required
+          value="{{ request.form.get('date', '') }}"
+        />
+      </div>
+
+      <div class="form__group">
+        <label class="form__label" for="category_id">Category</label>
+        <!--
+          The first option has value="" which maps to NULL in the database.
+          This is how we allow an expense to be "uncategorised".
+        -->
+        <select class="form__input form__select" id="category_id" name="category_id">
+          <option value="">None (uncategorised)</option>
+          {% for cat in categories %}
+            <option value="{{ cat.id }}"
+              {% if request.form.get('category_id') == cat.id|string %}selected{% endif %}>
+              {{ cat.name }}
+            </option>
+          {% endfor %}
+        </select>
+        {% if not categories %}
+          <p class="form__hint">
+            No categories yet.
+            <a href="{{ url_for('categories.add') }}">Create one first.</a>
+          </p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <div class="form__group">
+      <label class="form__label" for="notes">Notes <span class="form__optional">(optional)</span></label>
+      <textarea
+        class="form__input form__textarea"
+        id="notes"
+        name="notes"
+        placeholder="Any extra detail you want to remember..."
+        rows="3"
+      >{{ request.form.get('notes', '') }}</textarea>
+    </div>
+
+    <div class="form__actions">
+      <a href="{{ url_for('expenses.index') }}" class="btn btn--outline">Cancel</a>
+      <button type="submit" class="btn btn--primary">Save expense</button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  // Pre-fill date with today if no value (i.e. fresh page load, not a failed submission)
+  const dateInput = document.getElementById("date");
+  if (!dateInput.value) {
+    dateInput.value = new Date().toISOString().split("T")[0];
+  }
+</script>
+
+{% endblock %}
