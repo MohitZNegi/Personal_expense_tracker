@@ -1,0 +1,108 @@
+{% extends "base.html" %} {% block title %}{{ category.name }} Expenses{%
+endblock %} {% block content %}
+
+<div class="page-header">
+  <div class="page-header__title-row">
+    <span
+      class="colour-dot colour-dot--lg"
+      style="background: {{ category.colour }};"
+    ></span>
+    <div>
+      <h1 class="page-header__title">{{ category.name }}</h1>
+      <p class="page-header__sub">
+        {{ expenses|length }} expense{{ '' if expenses|length == 1 else 's' }}
+      </p>
+    </div>
+  </div>
+
+  <div class="page-header__actions">
+    <a
+      href="{{ url_for('categories.edit', category_id=category.id) }}"
+      class="btn btn--outline btn--sm"
+      >Edit category</a
+    >
+    <a href="{{ url_for('categories.index') }}" class="btn btn--outline"
+      >Back</a
+    >
+  </div>
+</div>
+
+<!-- Total for this category -->
+<div
+  class="summary-hero summary-hero--sm"
+  style="border-left-color: {{ category.colour }};"
+>
+  <p class="summary-hero__label">Total in {{ category.name }}</p>
+  <p class="summary-hero__amount" style="color: {{ category.colour }};">
+    £{{ "%.2f"|format(total) }}
+  </p>
+</div>
+
+{% if expenses %}
+
+<div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Notes</th>
+        <th class="table__cell--right">Amount</th>
+        <th class="table__cell--center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for expense in expenses %}
+      <tr>
+        <td class="table__cell--muted">
+          {{ expense.date.strftime("%d %b %Y") }}
+        </td>
+        <td>{{ expense.description }}</td>
+        <td class="table__cell--muted">{{ expense.notes or '—' }}</td>
+        <td class="table__cell--right table__cell--amount">
+          £{{ "%.2f"|format(expense.amount) }}
+        </td>
+        <td class="table__cell--center">
+          <div class="action-group">
+            <a
+              href="{{ url_for('expenses.edit', expense_id=expense.id) }}"
+              class="btn btn--sm btn--outline"
+              >Edit</a
+            >
+            <form
+              method="POST"
+              action="{{ url_for('expenses.delete', expense_id=expense.id) }}"
+              onsubmit="return confirm('Delete this expense?');"
+            >
+              <button type="submit" class="btn btn--sm btn--danger">
+                Delete
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3" class="table__cell--muted">Total</td>
+        <td class="table__cell--right table__cell--amount table__cell--total">
+          £{{ "%.2f"|format(total) }}
+        </td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+{% else %}
+
+<div class="empty-state">
+  <p class="empty-state__icon">🏷️</p>
+  <p class="empty-state__message">No expenses in this category yet.</p>
+  <a href="{{ url_for('expenses.add') }}" class="btn btn--primary"
+    >Add one now</a
+  >
+</div>
+
+{% endif %} {% endblock %}

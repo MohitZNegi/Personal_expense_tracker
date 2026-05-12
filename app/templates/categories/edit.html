@@ -1,0 +1,67 @@
+{% extends "base.html" %} {% block title %}Edit Category{% endblock %} {% block
+content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-header__title">Edit category</h1>
+    <p class="page-header__sub">Updating "{{ category.name }}"</p>
+  </div>
+  <a href="{{ url_for('categories.index') }}" class="btn btn--outline">Back</a>
+</div>
+
+<div class="form-card form-card--narrow">
+  <form method="POST" action="" novalidate class="form">
+    <div class="form__group">
+      <label class="form__label" for="name"
+        >Name <span class="form__required">*</span></label
+      >
+      <input
+        class="form__input"
+        type="text"
+        id="name"
+        name="name"
+        required
+        value="{{ request.form.get('name', category.name) }}"
+      />
+    </div>
+
+    <div class="form__group">
+      <label class="form__label" for="colour">Colour</label>
+      <div class="colour-picker-row">
+        <input
+          class="form__colour"
+          type="color"
+          id="colour"
+          name="colour"
+          value="{{ request.form.get('colour', category.colour) }}"
+        />
+        <label for="colour" class="colour-picker-hint"
+          >Click to change colour</label
+        >
+      </div>
+
+      <div class="colour-swatches">
+        {% set presets =
+        ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#ec4899','#8b5cf6','#14b8a6']
+        %} {% for hex in presets %}
+        <button
+          type="button"
+          class="swatch"
+          style="background: {{ hex }};"
+          onclick="document.getElementById('colour').value='{{ hex }}';"
+          title="{{ hex }}"
+        ></button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <a href="{{ url_for('categories.index') }}" class="btn btn--outline"
+        >Cancel</a
+      >
+      <button type="submit" class="btn btn--primary">Save changes</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

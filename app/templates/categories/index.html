@@ -1,0 +1,81 @@
+{% extends "base.html" %} {% block title %}Categories{% endblock %} {% block
+content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-header__title">Categories</h1>
+    <p class="page-header__sub">
+      {{ categories|length }} category{{ '' if categories|length == 1 else 'ies'
+      }}
+    </p>
+  </div>
+  <a href="{{ url_for('categories.add') }}" class="btn btn--primary"
+    >+ New category</a
+  >
+</div>
+
+{% if categories %}
+
+<div class="category-grid">
+  {% for cat in categories %}
+
+  <div class="category-card" style="border-top-color: {{ cat.colour }};">
+    <div class="category-card__header">
+      <span
+        class="colour-dot colour-dot--lg"
+        style="background: {{ cat.colour }};"
+      ></span>
+      <h2 class="category-card__name">{{ cat.name }}</h2>
+    </div>
+
+    <p class="category-card__count">
+      <!--
+            cat.expense_count was attached in the route with:
+              cat.expense_count = cat.expenses.count()
+            This avoids an N+1 query — we compute the count once per category
+            rather than calling .count() inside the template.
+          -->
+      {{ cat.expense_count }} expense{{ '' if cat.expense_count == 1 else 's' }}
+    </p>
+
+    <div class="category-card__actions">
+      <a
+        href="{{ url_for('categories.detail', category_id=cat.id) }}"
+        class="btn btn--sm btn--outline"
+        >View</a
+      >
+
+      <a
+        href="{{ url_for('categories.edit', category_id=cat.id) }}"
+        class="btn btn--sm btn--outline"
+        >Edit</a
+      >
+
+      <form
+        method="POST"
+        action="{{ url_for('categories.delete', category_id=cat.id) }}"
+        onsubmit="return confirm('Delete \'{{ cat.name }}\'? Its expenses will become uncategorised.')"
+      >
+        <button type="submit" class="btn btn--sm btn--danger">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  {% endfor %}
+</div>
+
+{% else %}
+
+<div class="empty-state">
+  <p class="empty-state__icon">🏷️</p>
+  <p class="empty-state__message">No categories yet.</p>
+  <p class="empty-state__hint">
+    Categories let you group expenses (e.g. Food, Transport, Rent) and see your
+    spending broken down on the summary page.
+  </p>
+  <a href="{{ url_for('categories.add') }}" class="btn btn--primary"
+    >Create your first category</a
+  >
+</div>
+
+{% endif %} {% endblock %}

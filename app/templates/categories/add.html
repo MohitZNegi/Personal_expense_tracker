@@ -1,0 +1,74 @@
+{% extends "base.html" %} {% block title %}New Category{% endblock %} {% block
+content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-header__title">New category</h1>
+    <p class="page-header__sub">Give it a name and a colour.</p>
+  </div>
+  <a href="{{ url_for('categories.index') }}" class="btn btn--outline">Back</a>
+</div>
+
+<div class="form-card form-card--narrow">
+  <form method="POST" action="" novalidate class="form">
+    <div class="form__group">
+      <label class="form__label" for="name"
+        >Name <span class="form__required">*</span></label
+      >
+      <input
+        class="form__input"
+        type="text"
+        id="name"
+        name="name"
+        placeholder="e.g. Groceries, Transport, Rent"
+        required
+        value="{{ request.form.get('name', '') }}"
+      />
+    </div>
+
+    <div class="form__group">
+      <label class="form__label" for="colour">Colour</label>
+      <div class="colour-picker-row">
+        <!--
+          <input type="color"> renders a native colour picker on all modern browsers.
+          The value must be a valid hex string (e.g. "#6366f1").
+          We store this hex in the database and use it inline in badge styles.
+        -->
+        <input
+          class="form__colour"
+          type="color"
+          id="colour"
+          name="colour"
+          value="{{ request.form.get('colour', '#6366f1') }}"
+        />
+        <label for="colour" class="colour-picker-hint">
+          Click to choose a colour
+        </label>
+      </div>
+
+      <!-- Quick preset swatches for convenience -->
+      <div class="colour-swatches">
+        {% set presets =
+        ['#6366f1','#0ea5e9','#10b981','#f59e0b','#ef4444','#ec4899','#8b5cf6','#14b8a6']
+        %} {% for hex in presets %}
+        <button
+          type="button"
+          class="swatch"
+          style="background: {{ hex }};"
+          onclick="document.getElementById('colour').value='{{ hex }}';"
+          title="{{ hex }}"
+        ></button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <a href="{{ url_for('categories.index') }}" class="btn btn--outline"
+        >Cancel</a
+      >
+      <button type="submit" class="btn btn--primary">Create category</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
