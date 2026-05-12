@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Expense Tracker{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <!-- ── Navigation ─────────────────────────────────────────────────────── -->
+    <nav class="navbar">
+      <a class="navbar__brand" href="{{ url_for('expenses.index') }}"
+        >💰 ExpenseTracker</a
+      >
+
+      <ul class="navbar__links">
+        {% if current_user.is_authenticated %}
+        <li>
+          <a
+            href="{{ url_for('expenses.index') }}"
+            class="{% if request.blueprint == 'expenses' %}active{% endif %}"
+          >
+            Expenses
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="{{ url_for('expenses.summary') }}"
+            class="{% if request.endpoint == 'expenses.summary' %}active{% endif %}"
+          >
+            Summary
+          </a>
+        </li>
+
+        <li>
+          <a
+            href="{{ url_for('categories.index') }}"
+            class="{% if request.blueprint == 'categories' %}active{% endif %}"
+          >
+            Categories
+          </a>
+        </li>
+
+        <li class="navbar__user">
+          <span>{{ current_user.username }}</span>
+          <a
+            href="{{ url_for('auth.logout') }}"
+            class="btn btn--sm btn--outline"
+            >Log out</a
+          >
+        </li>
+
+        {% else %}
+        <li><a href="{{ url_for('auth.login') }}">Log in</a></li>
+        <li>
+          <a
+            href="{{ url_for('auth.register') }}"
+            class="btn btn--sm btn--primary"
+            >Register</a
+          >
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+
+    <!-- ── Flash messages ─────────────────────────────────────────────────── -->
+    <!--
+    get_flashed_messages(with_categories=true) returns a list of (category, message) tuples.
+    The category is the second argument you pass to flash() in your route, e.g.:
+      flash("Expense added.", "success")   → category = "success"
+      flash("Invalid email.", "danger")    → category = "danger"
+    We map those to CSS classes below so each alert gets the right colour.
+  -->
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+      <div class="alert alert--{{ category }}">
+        {{ message }}
+        <button class="alert__close" onclick="this.parentElement.remove()">
+          ×
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %} {% endwith %}
+
+    <!-- ── Page content ───────────────────────────────────────────────────── -->
+    <main class="main-content">{% block content %}{% endblock %}</main>
+
+    <!-- ── Footer ────────────────────────────────────────────────────────── -->
+    <footer class="footer">
+      <p>
+        Expense Tracker · Project 1 of 5 · Built with Flask &amp; SQLAlchemy
+      </p>
+    </footer>
+  </body>
+</html>

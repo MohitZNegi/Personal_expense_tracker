@@ -1,0 +1,56 @@
+{% extends "base.html" %} {% block title %}Log in — Expense Tracker{% endblock
+%} {% block content %}
+<div class="auth-card">
+  <div class="auth-card__header">
+    <h1 class="auth-card__title">Welcome back</h1>
+    <p class="auth-card__sub">Log in to see your expenses.</p>
+  </div>
+
+  <!--
+    The hidden "next" field passes along the URL the user was trying to reach
+    before being redirected to login. Flask-Login sets request.args.get("next")
+    and the route sends them there after a successful login.
+  -->
+  <form method="POST" action="" novalidate class="form">
+    <input
+      type="hidden"
+      name="next"
+      value="{{ request.args.get('next', '') }}"
+    />
+
+    <div class="form__group">
+      <label class="form__label" for="email">Email address</label>
+      <input
+        class="form__input"
+        type="email"
+        id="email"
+        name="email"
+        placeholder="you@example.com"
+        required
+        autocomplete="email"
+        value="{{ request.form.get('email', '') }}"
+      />
+    </div>
+
+    <div class="form__group">
+      <label class="form__label" for="password">Password</label>
+      <input
+        class="form__input"
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Your password"
+        required
+        autocomplete="current-password"
+      />
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--full">Log in</button>
+  </form>
+
+  <p class="auth-card__footer">
+    No account yet?
+    <a href="{{ url_for('auth.register') }}">Register for free</a>
+  </p>
+</div>
+{% endblock %}

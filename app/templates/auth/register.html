@@ -1,0 +1,74 @@
+{% extends "base.html" %} {% block title %}Register — Expense Tracker{% endblock
+%} {% block content %}
+<div class="auth-card">
+  <div class="auth-card__header">
+    <h1 class="auth-card__title">Create an account</h1>
+    <p class="auth-card__sub">Start tracking your spending in seconds.</p>
+  </div>
+
+  <!--
+    method="POST" — form data is sent in the request body, not the URL.
+    action="" — post back to the same route (/auth/register).
+    The route handler checks request.method == "POST" to know when to process.
+  -->
+  <form method="POST" action="" novalidate class="form">
+    <div class="form__group">
+      <label class="form__label" for="username">Username</label>
+      <input
+        class="form__input"
+        type="text"
+        id="username"
+        name="username"
+        placeholder="e.g. alex_smith"
+        required
+        autocomplete="username"
+        value="{{ request.form.get('username', '') }}"
+      />
+      <!--
+        request.form.get('username', '') re-fills the field if the form was
+        submitted with an error — the user does not have to retype everything.
+      -->
+    </div>
+
+    <div class="form__group">
+      <label class="form__label" for="email">Email address</label>
+      <input
+        class="form__input"
+        type="email"
+        id="email"
+        name="email"
+        placeholder="you@example.com"
+        required
+        autocomplete="email"
+        value="{{ request.form.get('email', '') }}"
+      />
+    </div>
+
+    <div class="form__group">
+      <label class="form__label" for="password">Password</label>
+      <input
+        class="form__input"
+        type="password"
+        id="password"
+        name="password"
+        placeholder="At least 8 characters"
+        required
+        autocomplete="new-password"
+      />
+      <!--
+        We never re-fill password fields after a failed submit — a security
+        best practice. The user must retype the password.
+      -->
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--full">
+      Create account
+    </button>
+  </form>
+
+  <p class="auth-card__footer">
+    Already have an account?
+    <a href="{{ url_for('auth.login') }}">Log in</a>
+  </p>
+</div>
+{% endblock %}
